@@ -123,7 +123,80 @@
   4. Выходим из аккаунта
   
   ```
-  
+    setcookie('user', $user['LOGIN'], time() - (60*60), "/");
+
+	header('Location: /')
   ```
   
-  5. Меняем пароль, если
+  5. Меняем пароль, если мы его забыли (вместе с проверками)
+  
+  ```
+    $login = htmlspecialchars($_POST['login'] ?? '');
+	$name = htmlspecialchars($_POST['name'] ?? '');
+	$pass = htmlspecialchars($_POST['pass'] ?? '');
+	$pass2 = htmlspecialchars($_POST['pass2'] ?? '');
+
+	if (mb_strlen($pass) < 8 || mb_strlen($pass) > 20) {
+		$_SESSION['message'] = "Недопустимая длина пароля!";
+		header('Location: /sign-up.php');
+	}
+	elseif($pass != $pass2)
+	{
+		$_SESSION['message'] = "Пароли не совпадают!";
+		header('Location: /sign-up.php');
+	}
+	else
+	{
+	$salt = substr(hash("sha512", time()), 10, 10);
+	$pass =  crypt($pass, $salt);
+	$mysql = mysqli_connect('localhost', 'root', '', 'User_Info');
+	$q = "UPDATE `Users` SET `HASH`='$pass',`SALT`='$salt' WHERE `LOGIN` = '$login' AND `NAME` = '$name'";
+	mysqli_query($mysql, $q);
+	mysqli_close($mysql);
+
+	$_SESSION['message'] = 'Пароль успешно обновлён!';
+	header('Location: /');
+  ```
+  
+  6. Меняем пароль, если мы вошли в аккаунт и захотели его сменить (вместе с проверками)
+  
+  ```
+    $login = $_COOKIE['user'];
+	$old_pass = htmlspecialchars($_POST['old_pass'] ?? '');
+	$pass = htmlspecialchars($_POST['pass'] ?? '');
+	$pass2 = htmlspecialchars($_POST['pass2'] ?? '');
+	$mysql = mysqli_connect('localhost', 'root', '', 'User_Info');
+	$q = "SELECT * FROM `Users` WHERE `LOGIN` = '$login'";
+	$result = mysqli_query($mysql, $q);
+	$user = $result->fetch_assoc();
+	$hash = crypt($old_pass, $user['SALT']);
+	if($user['HASH'] != $hash){
+		$_SESSION['message'] = "Старый пароль введён неверно!";
+		header('Location: /change_pass_form.php');
+	}
+	elseif (mb_strlen($pass) < 8 || mb_strlen($pass) > 20) {
+		$_SESSION['message'] = "Недопустимая длина пароля!";
+		header('Location: /change_pass_form.php');
+	}
+	elseif($pass != $pass2)
+	{
+		$_SESSION['message'] = "Пароли не совпадают!";
+		header('Location: /change_pass_form.php');
+	}
+	elseif($pass == $old_pass){
+		$_SESSION['message'] = "Новый и старый пароли не должны совпадать!";
+		header('Location: /change_pass_form.php');
+	}
+	else{
+		$salt = substr(hash("sha512", time()), 10, 10);
+		$pass =  crypt($pass, $salt);
+		$q = "UPDATE `Users` SET `HASH`='$pass',`SALT`='$salt' WHERE `LOGIN` = '$login'";
+		mysqli_query($mysql, $q);
+		mysqli_close($mysql);
+		$_SESSION['message'] = 'Пароль успешно обновлён!';
+		header('Location: /');
+	}
+  ```
+
+## Вывод
+Спроектировали и разработали систему авторизации пользователей на протоколе HTTP
