@@ -22,7 +22,7 @@
 	$q = "UPDATE `Users` SET `HASH`='$pass',`SALT`='$salt' WHERE `LOGIN` = '$login' AND `NAME` = '$name'";
 	mysqli_query($mysql, $q);
 	mysqli_close($mysql);
-
+	setcookie('user', $_POST['login'], time() + (60*60), "/");
 	$_SESSION['message'] = 'Пароль успешно обновлён!';
 	header('Location: /');
 }
