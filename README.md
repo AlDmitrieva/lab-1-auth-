@@ -38,79 +38,17 @@
   
   ![](https://github.com/AlDmitrieva/lab_1_auth/blob/main/%D0%92%D1%85%D0%BE%D0%B4.png)
   
-  3. Выходим из аккаунта
+  3. Выходим из аккаунта (exit.php)
   
   ![](https://github.com/AlDmitrieva/lab_1_auth/blob/main/%D0%92%D1%8B%D1%85%D0%BE%D0%B4.png)
   
-  4. Меняем пароль, если мы его забыли (вместе с проверками)
+  4. Меняем пароль, если мы его забыли (forgot_pass.php)
   
-  ```
-    $login = htmlspecialchars($_POST['login'] ?? '');
-	$name = htmlspecialchars($_POST['name'] ?? '');
-	$pass = htmlspecialchars($_POST['pass'] ?? '');
-	$pass2 = htmlspecialchars($_POST['pass2'] ?? '');
-
-	if (mb_strlen($pass) < 8 || mb_strlen($pass) > 20) {
-		$_SESSION['message'] = "Недопустимая длина пароля!";
-		header('Location: /sign-up.php');
-	}
-	elseif($pass != $pass2)
-	{
-		$_SESSION['message'] = "Пароли не совпадают!";
-		header('Location: /sign-up.php');
-	}
-	else
-	{
-	$salt = substr(hash("sha512", time()), 10, 10);
-	$pass =  crypt($pass, $salt);
-	$mysql = mysqli_connect('localhost', 'root', '', 'User_Info');
-	$q = "UPDATE `Users` SET `HASH`='$pass',`SALT`='$salt' WHERE `LOGIN` = '$login' AND `NAME` = '$name'";
-	mysqli_query($mysql, $q);
-	mysqli_close($mysql);
-
-	$_SESSION['message'] = 'Пароль успешно обновлён!';
-	header('Location: /');
-  ```
+  ![](https://github.com/AlDmitrieva/lab_1_auth/blob/main/%D0%97%D0%B0%D0%B1%D1%8B%D0%BB%20%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8C.png)
   
-  6. Меняем пароль, если мы вошли в аккаунт и захотели его сменить (вместе с проверками)
+  6. Меняем пароль, если мы вошли в аккаунт и захотели его сменить (change_pass.php)
   
-  ```
-    $login = $_COOKIE['user'];
-	$old_pass = htmlspecialchars($_POST['old_pass'] ?? '');
-	$pass = htmlspecialchars($_POST['pass'] ?? '');
-	$pass2 = htmlspecialchars($_POST['pass2'] ?? '');
-	$mysql = mysqli_connect('localhost', 'root', '', 'User_Info');
-	$q = "SELECT * FROM `Users` WHERE `LOGIN` = '$login'";
-	$result = mysqli_query($mysql, $q);
-	$user = $result->fetch_assoc();
-	$hash = crypt($old_pass, $user['SALT']);
-	if($user['HASH'] != $hash){
-		$_SESSION['message'] = "Старый пароль введён неверно!";
-		header('Location: /change_pass_form.php');
-	}
-	elseif (mb_strlen($pass) < 8 || mb_strlen($pass) > 20) {
-		$_SESSION['message'] = "Недопустимая длина пароля!";
-		header('Location: /change_pass_form.php');
-	}
-	elseif($pass != $pass2)
-	{
-		$_SESSION['message'] = "Пароли не совпадают!";
-		header('Location: /change_pass_form.php');
-	}
-	elseif($pass == $old_pass){
-		$_SESSION['message'] = "Новый и старый пароли не должны совпадать!";
-		header('Location: /change_pass_form.php');
-	}
-	else{
-		$salt = substr(hash("sha512", time()), 10, 10);
-		$pass =  crypt($pass, $salt);
-		$q = "UPDATE `Users` SET `HASH`='$pass',`SALT`='$salt' WHERE `LOGIN` = '$login'";
-		mysqli_query($mysql, $q);
-		mysqli_close($mysql);
-		$_SESSION['message'] = 'Пароль успешно обновлён!';
-		header('Location: /');
-	}
-  ```
+  ![](https://github.com/AlDmitrieva/lab_1_auth/blob/main/%D0%A1%D0%BC%D0%B5%D0%BD%D0%B0%20%D0%BF%D0%B0%D1%80%D0%BE%D0%BB%D1%8F.png)
 
 ## Вывод
 Спроектировали и разработали систему авторизации пользователей на протоколе HTTP
