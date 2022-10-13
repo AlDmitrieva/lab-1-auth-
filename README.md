@@ -29,25 +29,10 @@
 | SALT     | varchar    | 20    | Уникальная соль пользователя                      |
 
 - Опишем алгоритмы 
-  1. Регистрируем пользователя
+
+1. Регистрируем пользователя
  
-   ```
-    $login = htmlspecialchars($_POST['login'] ?? '');
-	$name = htmlspecialchars($_POST['name'] ?? '');
-	$pass = htmlspecialchars($_POST['pass'] ?? '');
-	$pass2 = htmlspecialchars($_POST['pass2'] ?? '');
-	$salt = substr(hash("sha512", time()), 10, 10);
-	$pass =  crypt($pass, $salt);
-	$mysql = mysqli_connect('localhost', 'root', '', 'User_Info');
-	$q = "SELECT * FROM `Users` WHERE `LOGIN` = '$login'";
-	$result = mysqli_query($mysql, $q);
-	$user = $result->fetch_assoc();
-	$q = "INSERT INTO `Users`(`ID`, `NAME`, `LOGIN`, `HASH`, `SALT`) VALUES (NULL,'$name','$login','$pass','$salt')";
-	mysqli_query($mysql, $q);
-	mysqli_close($mysql);
-	setcookie('user', $_POST['login'], time() + (60*60), "/");
-	header('Location: /index.php');
-  ```
+ ![](https://github.com/AlDmitrieva/lab_1_auth/blob/main/%D0%A0%D0%B5%D0%B3%D0%B8%D1%81%D1%82%D1%80%D0%B0%D1%86%D0%B8%D1%8F.png)
   
   2. Проверяем регистрацию на наличие ошибок
   
